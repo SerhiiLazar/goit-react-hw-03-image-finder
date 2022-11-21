@@ -1,9 +1,11 @@
 import { ThreeCircles } from  'react-loader-spinner';
+import css from './Loader.module.css';
 // import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 export const Loader = ({isLoading}) => {
     return (
-        <ThreeCircles
+      <div className={css.wrapper}>
+          <ThreeCircles 
                 height="100"
                 width="100"
                 color="#4fa94d"
@@ -15,6 +17,9 @@ export const Loader = ({isLoading}) => {
                 innerCircleColor=""
                 middleCircleColor=""
   />
+      </div>
+        
+        
   )
 } 
 

@@ -1,12 +1,11 @@
-import {Component} from "react";
-import { ToastContainer, toast } from 'react-toastify';
-import {Loader} from './Loader/Loader';
+import { Component } from "react";
+import { ToastContainer } from 'react-toastify';
+import { Loader } from './Loader/Loader';
 import 'react-toastify/dist/ReactToastify.css';
 import css from './App.module.css';
-
 import * as API from './api/articlesApi';
-import Searchbar from "./Searchbar";
-import {ImageGallery} from "./ImageGallery";
+import { Searchbar } from "./Searchbar";
+import { ImageGallery } from "./ImageGallery";
 
 
 class App extends Component {
@@ -15,49 +14,50 @@ class App extends Component {
     page: 1,
     images: [],
     isLoading: false,
-    error: null,
+    error: false,
   } 
 
-
-  hendleSubmitForm = async ({query: keyword}) => {
-    const {query, page} = this.state;
-      
-    if(keyword === '') {
-      toast("You have not entered anything, please enter!");
-            return
-      }
+  // async componentDidMount() {
+  //    const {query, page} = this.state;
     
-    this.setState({  page: 1, query: keyword, images: [] });
-    if(query === keyword && page === 1) {
-      try {
+    
+  //   this.setState({ images: [] });
+    
+  //   if(query === '' && page === 1) {
+  //     try {
         
-        this.setState({ isLoading: true });
+  //       this.setState({ isLoading: true });
 
-        const images = await API.fetchImages(query, page);
-
-        this.setState({
-          images: [...images.hits], 
-          isLoading: false,
-        })
-      } catch (error) {
-        this.setState({error: true, isLoading: false});
-      }
-    }
-  }
-
-  
-  
-  async componentDidUpdate(_, prevState) {
-    const prevQuery = prevState.query;
-    const nextQuery = this.state.query;
+  //       const images = await API.fetchImages(query, page);
+        
+  //       this.setState({
+  //         images: [...images.hits], 
+  //         isLoading: false,
+  //       })
+  //       console.log("A:",images)
+  //     } catch (error) {
+  //       this.setState({error: true});
+  //     }
+  //   }
+  // }
+  async componentDidUpdate(prevState, prevState) {
+    const {query, page} = this.state;
+    
+    
+    
+    // const prevQuery = prevState.query;
+    // const nextQuery = this.state.query;
 
     
 
-    const prevPage = prevState.page;
-    const nextPage = this.state.page;
+    // const prevPage = prevState.page;
+    // const nextPage = this.state.page;
 
+    // console.log("обновился");
+    // console.log('prevQuery:', prevQuery);
+    // console.log('nextQuery:', nextQuery);
     
-    if(prevPage !== nextPage || prevQuery !== nextQuery) {
+    if(prevState.page !== page || prevState.query !== query) {
       
       try {
         this.satState({ isLoading: true});
@@ -67,29 +67,38 @@ class App extends Component {
         //   показать больше 
         // }
 
-        this.setState(prevState => ({
-          images: [...prevState.images, ...images.hits],
+        this.setState(prevProps => ({
+          images: [...prevProps.images, ...images.hits],
           isLoading: false,
         }))
-        console.log(images);
+        console.log("B:", images);
       } catch (error) {
         this.setState({
-          error: false, 
-          isLoading: false,
+          error: true
         });
       }
     }
+    
   }
   
-  
+  hendleSubmitForm = (query) => {
+    this.setState({query: query, page: 1, images: []})
+   
+   
+   
+    
+  }
+
+
   render () {
     const submitForm = this.hendleSubmitForm;
     const {isLoading, images, } = this.state;
     return (
       <div className={css.App}>
         <Searchbar onSubmit={submitForm}/>
-        <Loader isLoading={isLoading} />
         <ImageGallery  images={images}/>
+        <Loader isLoading={isLoading} />
+        
         <ToastContainer 
             position="top-center"
             autoClose={3000}

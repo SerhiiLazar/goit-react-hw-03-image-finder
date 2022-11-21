@@ -1,38 +1,38 @@
 import {Component} from "react";
-// import { toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import css from './Searchbar.module.css';
 
-class Searchbar extends Component {
+export class Searchbar extends Component {
     state = {
         query: '',
     }
     hendleSubmit = event => {
       event.preventDefault();
-      
       this.props.onSubmit(this.state);
-    
+      if(this.state.query === '') {
+        toast("You have not entered anything, please enter!");
+          return
+        }
+      this.setState({ query: '' })
     }
 
     hendleChange = event => {
-        const {name, value} = event.target;
-        this.setState({ [name]: value.trim() });
+        
+        this.setState({ query: event.currentTarget.value.trim() });
         
     };
 
-    reset = () => {
-        this.setState({ query: '' })
-        
-    }
+  
   render() {
     const hendleChange = this.hendleChange;
-    // const searchValue = this.state.query;
+    const searchValue = this.state.query;
     const hendleSubmit = this.hendleSubmit;
     
     return (
       <header className={css.Searchbar}>
         <form className={css.SearchForm} onSubmit={hendleSubmit}>
           <button type="submit" className={css.SearchFormButton}>
-            {/* <span className={css.SearchFormButtonLabel}></span> */}
+            <span className={css.SearchFormButtonLabel}></span>
           </button>
 
           <input
@@ -42,7 +42,7 @@ class Searchbar extends Component {
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
-            // value={searchValue}
+            value={searchValue}
             onChange={hendleChange}
           />
         </form>
@@ -51,4 +51,3 @@ class Searchbar extends Component {
   }
 }
 
-export default Searchbar;
