@@ -6,26 +6,31 @@ export class Searchbar extends Component {
     state = {
         query: '',
     }
+    
     hendleSubmit = event => {
       event.preventDefault();
-      this.props.onSubmit(this.state);
-      if(this.state.query === '') {
+      const {onSubmit} = this.props;
+      const {query} = this.state;
+
+      if(query.trim() === '') {
         toast("You have not entered anything, please enter!");
           return
         }
-      this.setState({ query: '' })
+        this.setState({ query: '' })  
+      onSubmit(query);
+      
     }
 
     hendleChange = event => {
         
-        this.setState({ query: event.currentTarget.value.trim() });
+        this.setState({ query: event.currentTarget.value });
         
     };
 
   
   render() {
+    const {query} = this.state;
     const hendleChange = this.hendleChange;
-    const searchValue = this.state.query;
     const hendleSubmit = this.hendleSubmit;
     
     return (
@@ -42,7 +47,7 @@ export class Searchbar extends Component {
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
-            value={searchValue}
+            value={query}
             onChange={hendleChange}
           />
         </form>

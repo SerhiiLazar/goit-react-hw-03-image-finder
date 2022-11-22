@@ -6,6 +6,7 @@ import css from './App.module.css';
 import * as API from './api/articlesApi';
 import { Searchbar } from "./Searchbar";
 import { ImageGallery } from "./ImageGallery";
+import Button from "./Button";
 
 
 class App extends Component {
@@ -13,90 +14,65 @@ class App extends Component {
     query: '',
     page: 1,
     images: [],
+    currPage: 0,
+    totalImages: 0,
     isLoading: false,
     error: false,
   } 
 
-  // async componentDidMount() {
-  //    const {query, page} = this.state;
-    
-    
-  //   this.setState({ images: [] });
-    
-  //   if(query === '' && page === 1) {
-  //     try {
-        
-  //       this.setState({ isLoading: true });
+  hendleSubmitForm = query => {
+    this.setState({query: query, page: 1, images: []})
+  }
 
-  //       const images = await API.fetchImages(query, page);
-        
-  //       this.setState({
-  //         images: [...images.hits], 
-  //         isLoading: false,
-  //       })
-  //       console.log("A:",images)
-  //     } catch (error) {
-  //       this.setState({error: true});
-  //     }
-  //   }
-  // }
-  async componentDidUpdate(prevState, prevState) {
+  loadMore = () => {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
+   
+  }
+
+  componentDidUpdate(_, prevState) {
     const {query, page} = this.state;
     
-    
-    
-    // const prevQuery = prevState.query;
-    // const nextQuery = this.state.query;
-
-    
-
-    // const prevPage = prevState.page;
-    // const nextPage = this.state.page;
-
-    // console.log("обновился");
-    // console.log('prevQuery:', prevQuery);
-    // console.log('nextQuery:', nextQuery);
-    
     if(prevState.page !== page || prevState.query !== query) {
-      
-      try {
-        this.satState({ isLoading: true});
+      // try {
+        this.setState(({ isLoading }) => ({ isLoading: !isLoading}));
         
-        const images = await API.fetchImages(nextQuery, nextPage);
-        // if(images.totalHits > API.perPage) {
-        //   показать больше 
-        // }
+          API.fetchImages(query, this.state.page)
+          .then(({hits, totalHits}) => {
+          const imagesArr = hits.map(hit => ({
+            id: hit.id,
+            tags: hit.tags,
+            webformatURL: hit.webformatURL,
+            largeImageURL: hit.largeImageURL,
+          }));
 
-        this.setState(prevProps => ({
-          images: [...prevProps.images, ...images.hits],
-          isLoading: false,
-        }))
-        console.log("B:", images);
-      } catch (error) {
-        this.setState({
-          error: true
-        });
-      }
-    }
-    
+          return this.setState(({images, currPage}) => ({
+            images: [...images, ...imagesArr],
+            currPage: currPage + imagesArr.length,
+            totslImages: totalHits,
+            isLoading: false,
+
+          }))
+         })
+         .catch (error => this.setState({error})) 
+          .finally(() => this.setState(({isLoading}) => ({isLoading: false})))
+        }
   }
+
+ 
   
-  hendleSubmitForm = (query) => {
-    this.setState({query: query, page: 1, images: []})
-   
-   
-   
-    
-  }
+ 
 
 
   render () {
     const submitForm = this.hendleSubmitForm;
-    const {isLoading, images, } = this.state;
+    const {isLoading, images } = this.state;
     return (
       <div className={css.App}>
         <Searchbar onSubmit={submitForm}/>
         <ImageGallery  images={images}/>
+        <Button onClick={this.loadMore} />
         <Loader isLoading={isLoading} />
         
         <ToastContainer 
