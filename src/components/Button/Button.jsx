@@ -1,8 +1,8 @@
 import css from './Button.module.css';
 
-function Button({loadMoreFetch}) {
+const Button = ({loadMoreFetch}) => {
     return (
-        <button className={css.Button} type="submit" onClick={loadMoreFetch}>
+        <button className={css.Button} type="button" onClick={loadMoreFetch} >
             Load More
         </button>
     )

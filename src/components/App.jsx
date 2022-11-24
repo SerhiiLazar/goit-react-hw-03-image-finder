@@ -20,45 +20,56 @@ class App extends Component {
     error: false,
   } 
 
-  hendleSubmitForm = query => {
-    this.setState({query: query, page: 1, images: []})
-  }
+ 
+    
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-   
-  }
-
-  componentDidUpdate(_, prevState) {
+  async componentDidUpdate(_, prevState) {
     const {query, page} = this.state;
+    console.log('предыдущий', prevState.page);
+    console.log('обновилось', this.state.page);
+    console.log('предыдущий', prevState.query);
+    console.log('обновилось', this.state.query);
     
     if(prevState.page !== page || prevState.query !== query) {
-      // try {
-        this.setState(({ isLoading }) => ({ isLoading: !isLoading}));
+      try {
         
-          API.fetchImages(query, this.state.page)
-          .then(({hits, totalHits}) => {
-          const imagesArr = hits.map(hit => ({
-            id: hit.id,
-            tags: hit.tags,
-            webformatURL: hit.webformatURL,
-            largeImageURL: hit.largeImageURL,
-          }));
+        this.setState({isLoading: true});
+        
+          const images = await API.fetchImages(query, this.state.page)
 
-          return this.setState(({images, currPage}) => ({
-            images: [...images, ...imagesArr],
-            currPage: currPage + imagesArr.length,
-            totslImages: totalHits,
-            isLoading: false,
-
-          }))
-         })
-         .catch (error => this.setState({error})) 
-          .finally(() => this.setState(({isLoading}) => ({isLoading: false})))
-        }
+            this.setState(prevState => ({
+              images: [...prevState.images, ...images.hits],
+              isLoading: false,
+            }))
+          
+        } catch (error) {
+          this.setState({isLoading: false, error: true})
+      }
   }
+  }
+   hendleSubmitForm = async (query) => {
+    
+    this.setState({ page: 1, query: query, images: []})
+    const {query, page} = this.state;
+  try{
+        this.setState({isLoading: true});
+
+        const images = await API.fetchImages(query, page);
+
+        this.setState({
+          images: [...images.hits],
+          isLoading: false,
+        })
+      } catch (error) {
+        this.setState({error: true, isLoading: false});
+      }
+    }
+
+  loadMore = () => {
+    this.setState(prevState => ({page: prevState.page + 1}))
+  };
+
+  
 
  
   

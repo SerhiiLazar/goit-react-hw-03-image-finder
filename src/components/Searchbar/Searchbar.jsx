@@ -9,27 +9,28 @@ export class Searchbar extends Component {
     
     hendleSubmit = event => {
       event.preventDefault();
+    
+      
       const {onSubmit} = this.props;
-      const {query} = this.state;
+      
 
-      if(query.trim() === '') {
+      if(this.state.query.trim() === '') {
         toast("You have not entered anything, please enter!");
           return
         }
-        this.setState({ query: '' })  
-      onSubmit(query);
       
+      onSubmit(this.state.query);
+      event.target.reset();  
     }
 
     hendleChange = event => {
-        
         this.setState({ query: event.currentTarget.value });
-        
+        console.log(event.currentTarget.value)
     };
 
   
   render() {
-    const {query} = this.state;
+    const {query} = this.state.query;
     const hendleChange = this.hendleChange;
     const hendleSubmit = this.hendleSubmit;
     
