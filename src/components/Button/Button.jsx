@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import css from './Button.module.css';
 
 const Button = ({ loadMoreFetch }) => {
@@ -9,3 +10,7 @@ const Button = ({ loadMoreFetch }) => {
 };
 
 export default Button;
+
+Button.propTypes = {
+  loadMoreFetch: PropTypes.func.isRequired,
+};
