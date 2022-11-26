@@ -21,7 +21,7 @@ class App extends Component {
   } 
 
   hendleSubmitForm = ({query}) => {
-    this.setState({ page: 1, query: query, images: []})
+    this.setState({ page: 1, query: query, images: [] })
   }
     
   loadMore = () => {
@@ -49,27 +49,32 @@ class App extends Component {
         this.setState({isLoading: true});
         
         const images = await API.fetchImages(nextQuery, nextPage);
+        console.log('Fetch')
 
-        if(images.total === 0) {
-          toast('Please try again');
-        }
-        if(images.totalHits > API.perPage){
-          this.setState({loadMore: true});
-          this.setState({isLoading: false})
-          return;
-        }
-
-        if(nextPage + 1 > Math.ceil(images.totalHits / API.perPage)) {
-          this.setState({isLoading: false, loadMore: false})
-        }
         this.setState(prevState => ({
           images: [...prevState.images, ...images.hits],
           totalImages: images.totalHits,
           isLoading: false,
-        }))
+        }));
+        
+        if(images.total === 0) {
+          toast('Please try again');
+        }
+
+        
+        if(images.totalHits > API.perPage){
+          this.setState({loadMore: true});
+          this.setState({isLoading: false});
+          return;
+        }
+
+        if(nextPage + 1 > Math.ceil(images.totalHits / API.perPage)) {
+          this.setState({isLoading: false, loadMore: false});
+        }
+        
           
         } catch (error) {
-          this.setState({isLoading: false, error: true})
+          this.setState({isLoading: false, error: true});
       }
 
       
