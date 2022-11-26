@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import { Loader } from './Loader/Loader';
 import 'react-toastify/dist/ReactToastify.css';
 import css from './App.module.css';
@@ -14,76 +14,77 @@ class App extends Component {
     query: '',
     page: 1,
     images: [],
-    currPage: 0,
-    totalImages: 0,
+    loadMore: false,
     isLoading: false,
     error: false,
+    totalImages: 0,
   } 
 
- 
+  hendleSubmitForm = ({query}) => {
+    this.setState({ page: 1, query: query, images: []})
+  }
     
+  loadMore = () => {
+    this.setState(prevState => ({page: prevState.page+1}))
+    console.log('click')
+  };
 
   async componentDidUpdate(_, prevState) {
-    const {query, page} = this.state;
-    console.log('предыдущий', prevState.page);
-    console.log('обновилось', this.state.page);
-    console.log('предыдущий', prevState.query);
-    console.log('обновилось', this.state.query);
+
+    const prevQuery = prevState.query;
+    const nextQuery = this.state.query;
+
+    const prevPage = prevState.page;
+    const nextPage = this.state.page;
+
     
-    if(prevState.page !== page || prevState.query !== query) {
+    console.log('предыдущий', prevPage);
+    console.log('обновилось', nextPage);
+    console.log('предыдущий', prevQuery);
+    console.log('обновилось', nextQuery);
+    
+    if(prevPage !== nextPage || prevQuery !== nextQuery) {
       try {
         
         this.setState({isLoading: true});
         
-          const images = await API.fetchImages(query, this.state.page)
+        const images = await API.fetchImages(nextQuery, nextPage);
 
-            this.setState(prevState => ({
-              images: [...prevState.images, ...images.hits],
-              isLoading: false,
-            }))
+        if(images.total === 0) {
+          toast('Please try again');
+        }
+        if(images.totalHits > API.perPage){
+          this.setState({loadMore: true});
+          this.setState({isLoading: false})
+          return;
+        }
+
+        if(nextPage + 1 > Math.ceil(images.totalHits / API.perPage)) {
+          this.setState({isLoading: false, loadMore: false})
+        }
+        this.setState(prevState => ({
+          images: [...prevState.images, ...images.hits],
+          totalImages: images.totalHits,
+          isLoading: false,
+        }))
           
         } catch (error) {
           this.setState({isLoading: false, error: true})
       }
+
+      
+      
   }
   }
-   hendleSubmitForm = async (query) => {
-    
-    this.setState({ page: 1, query: query, images: []})
-    const {query, page} = this.state;
-  try{
-        this.setState({isLoading: true});
-
-        const images = await API.fetchImages(query, page);
-
-        this.setState({
-          images: [...images.hits],
-          isLoading: false,
-        })
-      } catch (error) {
-        this.setState({error: true, isLoading: false});
-      }
-    }
-
-  loadMore = () => {
-    this.setState(prevState => ({page: prevState.page + 1}))
-  };
-
   
-
- 
-  
- 
-
-
   render () {
     const submitForm = this.hendleSubmitForm;
-    const {isLoading, images } = this.state;
+    const {isLoading, images, loadMore } = this.state;
     return (
       <div className={css.App}>
         <Searchbar onSubmit={submitForm}/>
         <ImageGallery  images={images}/>
-        <Button onClick={this.loadMore} />
+        {loadMore && <Button loadMoreFetch={this.loadMore} />}
         <Loader isLoading={isLoading} />
         
         <ToastContainer 

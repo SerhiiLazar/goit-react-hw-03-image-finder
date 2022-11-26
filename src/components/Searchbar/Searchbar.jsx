@@ -19,18 +19,19 @@ export class Searchbar extends Component {
           return
         }
       
-      onSubmit(this.state.query);
+      onSubmit(this.state);
       event.target.reset();  
     }
 
     hendleChange = event => {
-        this.setState({ query: event.currentTarget.value });
-        console.log(event.currentTarget.value)
+        const {name, value} = event.target;
+        this.setState({ [name]: value });
+       
     };
 
   
   render() {
-    const {query} = this.state.query;
+    // const {query} = this.state.query;
     const hendleChange = this.hendleChange;
     const hendleSubmit = this.hendleSubmit;
     
@@ -48,7 +49,7 @@ export class Searchbar extends Component {
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
-            value={query}
+            // value={query}
             onChange={hendleChange}
           />
         </form>
