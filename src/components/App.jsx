@@ -6,6 +6,7 @@ import css from './App.module.css';
 import * as API from './api/articlesApi';
 import { Searchbar } from "./Searchbar";
 import { ImageGallery } from "./ImageGallery";
+import { Modal } from "./Modal";
 import Button from "./Button";
 
 
@@ -19,7 +20,72 @@ class App extends Component {
     error: false,
     totalImages: 0,
     totalPage: 0,
+    showModal: false,
+    imagesModal: null,
     } 
+
+    async componentDidUpdate(_, prevState) {
+
+      const prevQuery = prevState.query;
+      const nextQuery = this.state.query;
+  
+      const prevPage = prevState.page;
+      const nextPage = this.state.page;
+  
+      
+      console.log('предыдущий', prevPage);
+      console.log('обновилось', nextPage);
+      console.log('предыдущий', prevQuery);
+      console.log('обновилось', nextQuery);
+      
+      if(prevPage !== nextPage || prevQuery !== nextQuery) {
+        try {
+          
+          this.setState({isLoading: true});
+          
+          const images = await API.fetchImages(nextQuery, nextPage);
+          console.log('Fetch')
+  
+          this.setState(prevState => ({
+            images: [...prevState.images, ...images.hits],
+            totalImages: images.totalHits,
+            totalPage: Math.ceil(images.totalHits / API.perPage),
+            isLoading: false,
+          }));
+          
+  
+          if(images.total === 0) {
+            toast('Please try again');
+            this.setState({loadMore: false})
+            return; 
+          }
+  
+          
+          if(images.totalHits > API.perPage){
+            this.setState({loadMore: true, isLoading: false});
+          }
+  
+          if(nextPage + 1 > Math.ceil(images.totalHits / API.perPage)) {
+            this.setState({isLoading: false, loadMore: false});
+          }
+  
+          if(nextPage >= Math.ceil(images.totalHits / API.perPage)) {
+            this.setState({isLoading: false, loadMore: false});
+          }
+          
+          // if(images.totalPage) {
+          //   this.setState({isLoading: false, loadMore: false})
+          //   return;
+          // }
+            
+          } catch (error) {
+            this.setState({isLoading: false, error: true});
+        }
+  
+        
+        
+    }
+    }  
 
   hendleSubmitForm = ({query}) => {
     this.setState({ page: 1, query: query, images: [] })
@@ -28,8 +94,12 @@ class App extends Component {
       this.setState({isLoading: false, loadMore: false })
       return;
     }
-    
-    
+  }
+
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({
+        showModal: !showModal,
+    }))
   }
     
   loadMore = () => {
@@ -37,76 +107,22 @@ class App extends Component {
     console.log('click')
   };
 
-  async componentDidUpdate(_, prevState) {
-
-    const prevQuery = prevState.query;
-    const nextQuery = this.state.query;
-
-    const prevPage = prevState.page;
-    const nextPage = this.state.page;
-
-    
-    console.log('предыдущий', prevPage);
-    console.log('обновилось', nextPage);
-    console.log('предыдущий', prevQuery);
-    console.log('обновилось', nextQuery);
-    
-    if(prevPage !== nextPage || prevQuery !== nextQuery) {
-      try {
-        
-        this.setState({isLoading: true});
-        
-        const images = await API.fetchImages(nextQuery, nextPage);
-        console.log('Fetch')
-
-        this.setState(prevState => ({
-          images: [...prevState.images, ...images.hits],
-          totalImages: images.totalHits,
-          totalPage: Math.ceil(images.totalHits / API.perPage),
-          isLoading: false,
-        }));
-        
-
-        if(images.total === 0) {
-          toast('Please try again');
-          this.setState({loadMore: false})
-          return; 
-        }
-
-        
-        if(images.totalHits > API.perPage){
-          this.setState({loadMore: true, isLoading: false});
-        }
-
-        if(nextPage + 1 > Math.ceil(images.totalHits / API.perPage)) {
-          this.setState({isLoading: false, loadMore: false});
-        }
-
-        if(nextPage >= Math.ceil(images.totalHits / API.perPage)) {
-          this.setState({isLoading: false, loadMore: false});
-        }
-        
-        // if(images.totalPage) {
-        //   this.setState({isLoading: false, loadMore: false})
-        //   return;
-        // }
-          
-        } catch (error) {
-          this.setState({isLoading: false, error: true});
-      }
-
-      
-      
+  modaImgClick = (largeImageURL, tags) => {
+    this.toggleModal();
+    this.setState({imagesModal: {largeImageURL, tags}});
   }
-  }
+  
   
   render () {
     const submitForm = this.hendleSubmitForm;
-    const {isLoading, images, loadMore } = this.state;
+    const {isLoading, images, loadMore, showModal, imagesModal } = this.state;
     return (
       <div className={css.App}>
         <Searchbar onSubmit={submitForm}/>
-        <ImageGallery  images={images}/>
+        <ImageGallery  images={images} onClick={this.modaImgClick}/>
+        {showModal && (<Modal onClose={this.toggleModal} 
+                              largeImageURL={imagesModal.largeImageURL}
+                              tags={imagesModal.tags}/>)}
         {loadMore && <Button loadMoreFetch={this.loadMore} />}
         <Loader isLoading={isLoading} />
         
