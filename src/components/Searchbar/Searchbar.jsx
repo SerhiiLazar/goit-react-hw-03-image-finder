@@ -1,5 +1,5 @@
 import {Component} from "react";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import css from './Searchbar.module.css';
 
 export class Searchbar extends Component {
@@ -53,18 +53,6 @@ export class Searchbar extends Component {
             onChange={hendleChange}
           />
         </form>
-        <ToastContainer 
-            position="top-center"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="dark"
-        />
       </header>
     );
   }

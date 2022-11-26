@@ -22,6 +22,7 @@ class App extends Component {
 
   hendleSubmitForm = ({query}) => {
     this.setState({ page: 1, query: query, images: [] })
+    
   }
     
   loadMore = () => {
@@ -57,6 +58,8 @@ class App extends Component {
           isLoading: false,
         }));
         
+       
+
         if(images.total === 0) {
           toast('Please try again');
         }
