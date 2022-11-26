@@ -22,6 +22,12 @@ class App extends Component {
 
   hendleSubmitForm = ({query}) => {
     this.setState({ page: 1, query: query, images: [] })
+    if(this.state.query === query) {
+      toast("You have not entered anything, please enter!");
+      this.setState({isLoading: false})
+          return
+    }
+    
     
   }
     
@@ -58,10 +64,10 @@ class App extends Component {
           isLoading: false,
         }));
         
-       
 
         if(images.total === 0) {
           toast('Please try again');
+          return 
         }
 
         

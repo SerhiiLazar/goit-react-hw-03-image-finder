@@ -14,7 +14,7 @@ export class Searchbar extends Component {
       const {onSubmit} = this.props;
       
 
-      if(this.state.query.trim() === '') {
+      if(this.state.query === '') {
         toast("You have not entered anything, please enter!");
           return
         }
@@ -25,7 +25,7 @@ export class Searchbar extends Component {
 
     hendleChange = event => {
         const {name, value} = event.target;
-        this.setState({ [name]: value });
+        this.setState({ [name]: value.trim() });
        
     };
 
