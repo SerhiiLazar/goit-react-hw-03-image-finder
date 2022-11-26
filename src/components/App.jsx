@@ -18,21 +18,22 @@ class App extends Component {
     isLoading: false,
     error: false,
     totalImages: 0,
-  } 
+    totalPage: 0,
+    } 
 
   hendleSubmitForm = ({query}) => {
     this.setState({ page: 1, query: query, images: [] })
     if(this.state.query === query) {
       toast("You have not entered anything, please enter!");
-      this.setState({isLoading: false})
-          return
+      this.setState({isLoading: false, loadMore: false })
+      return;
     }
     
     
   }
     
   loadMore = () => {
-    this.setState(prevState => ({page: prevState.page+1}))
+    this.setState(prevState => ({page: prevState.page + 1}))
     console.log('click')
   };
 
@@ -61,26 +62,34 @@ class App extends Component {
         this.setState(prevState => ({
           images: [...prevState.images, ...images.hits],
           totalImages: images.totalHits,
+          totalPage: Math.ceil(images.totalHits / API.perPage),
           isLoading: false,
         }));
         
 
         if(images.total === 0) {
           toast('Please try again');
-          return 
+          this.setState({loadMore: false})
+          return; 
         }
 
         
         if(images.totalHits > API.perPage){
-          this.setState({loadMore: true});
-          this.setState({isLoading: false});
-          return;
+          this.setState({loadMore: true, isLoading: false});
         }
 
         if(nextPage + 1 > Math.ceil(images.totalHits / API.perPage)) {
           this.setState({isLoading: false, loadMore: false});
         }
+
+        if(nextPage >= Math.ceil(images.totalHits / API.perPage)) {
+          this.setState({isLoading: false, loadMore: false});
+        }
         
+        // if(images.totalPage) {
+        //   this.setState({isLoading: false, loadMore: false})
+        //   return;
+        // }
           
         } catch (error) {
           this.setState({isLoading: false, error: true});
